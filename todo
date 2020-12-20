@@ -1,0 +1,16 @@
+Machine Learning Algorithmen auf Textdokumente anwenden um bestimmte Ziele zu erfüllen. Die Dokumente müssen online und in Schriftform frei verfügbar sein, müssen allerdings nicht bereits als vorbereiteter Datensatz existieren sondern können z.B. auch vereinzelte Webseiten sein. Textdokument kann wirklich alles sein: Tweets, Wikipediaartikel, Zeitungsartikel, Facebookkommentare, Amazon Rezensionen, Bücher, transkribierte Interviews
+
+Informationsbeschaffung: Relevante Texte in einer großen Menge an Texten finden (z.B. die bestimmten Suchanfragen entsprechen)
+Textklassifizierung: Texte in vorgegebene Klassen einordnen (z.B. transkribierte Reden von Politikern, versuchen zuzuordnen welcher Partei diese angehören)
+Text clustering: Einen Algorithmus Texte in vorher unbekannte Klassen sortieren lassen. (z.B. Amazon Produktrezensionen die dann nach Gebieten sortiert werden)
+Informationsextrahierung: Fragen beantworten ("Welcher Fußballer hat in seiner Karriere die meisten Tore geschossen?")
+
+
+
+Songs of different genres -> classification just by text analysis? -> is it possible? which artists get wrongly classified the most? which genre is the easiest to predict?
+
+(German) Hip-Hop songs -> text clustering: What are different themes in (german) hip-hop? Which artists share common themes?
+-> Sentiment analysis?
+
+https://github.com/johnwmillr/LyricsGenius
+https://genius.com/
