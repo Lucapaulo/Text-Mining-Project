@@ -8,6 +8,7 @@
 \graphicspath{{figures/}}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{balance}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -23,13 +24,11 @@
 \maketitle
 
 \begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
+Test
 \end{abstract}
 
 \section{Introduction}
- Introduce the task or research question that you have addressed in
+Introduce the task or research question that you have addressed in
 your project. What were you trying to do? Why did you choose this project?
 
 \section{Theory}
@@ -40,6 +39,15 @@ you have used. Where appropriate, use mathematical formulas.
 Present your data. What information does it contain? Where did you get it
 from? What preprocessing did you do, if any?
 
+\subsection{Dataset}
+First of all, a selection of songs had to be made. To find a balance between relevant artists in the CD era and the streaming era, I decided to combine lists of artists from two sources. I selected all 46 german artists from the Wikipedia list of Rappers that sold more than 100,000 albums in Germany \cite{wiki_albums}. The popularity of musicians today, especially Rappers, is not only defined by the albums sales but also the online streams. Therefore I picked all 13 Rappers appearing in the Spotify playlist "Top German Artists of 2020" \cite{spotify_2020} that were not in the selection yet. To increase the dataset, I chose 18 more objectively popular Rappers, adding up to 77 artists in the end.\\
+The lyrics of the artists' songs were then downloaded using the Genius API \cite{genius} with help of the \textit{lyricsgenius}package \cite{lyricsgenius}. A lot of the songs are duplicates, since remixes, features and live versions are all included in the genius database. There are furthermore many non-songs in the database, such as commentaries. Luckily, most could easily be ignored by discarding songs that contain brackets, as in \textit{Papa ist da (AsadJohn Remix)}. Few others had to be handled differently, but the final dataset is clean of such occurences. In a first run of the model, songs containing english lyrics formed an individual topic. Upon manual inspection, there were a few songs with parts in english, or even completely in english. Therefore, songs that contain all the most common english words in the english topic "the", "you" and "and" were suspected to contain english lyrics and also discarded. The final dataset features almost 7500 songs.
+
+\subsection{Preprocessing}
+Preprocessing the song lyrics was an iterative process with many learned lessons. The most basic first step is to remove meta information that is written in brackets from the lyrics, such as \textit{[Hook]}. Next, the songs are tokenized using spacy's German package. Non-alphabetic tokens, stop words and tokens with less than three letters are removed. The rest of the preprocessing is done with Gensim. Bigrams and Trigrams are added and extremes are filtered. Finding the seemingly best values for these tasks was done with the trial and error method.\\
+After excluding english songs from the dataset, the model would still find a topic with mostly english stop words. After removing english stop words during preprocessing, the problem was solved. Another problem was many artist's names appearing in the most salient words of some topics. The reason for this is that some Rappers are notorious for talking and singing about themselves in the third person. Rappers with a lot of songs in the dataset would therefore skew the results, although their own name has nothing to do with the message behind their song. To tackle the problem, each artists name was removed from his or her lyrics. As a final tweak of the preprocessing step, a couple of stop words that were not in spacy's German list were manually removed.\\
+Tokenizing German text turned out to be a difficult task, with no really satisfying solution. In German texts, all nouns are capitalized, therefore also in spacy's word list. If a word at the beginning of a sentence is capitalized, it is not possible for spacy to tell wether it's a noun or not. Feeding spacy all words in lowercase would also not solve the problem, since it would not recognize the nouns anymore. Additionally, some words have a different meaning depending on wether they are a noun (capitalized) or not. E.g. "Weg" means path but "weg" means away in German. This appears to be an unsolved problem as of today, as can be read on spacy's Github forum \cite{spacy_issues}. Lemmatization does also not work as well as for english text, but overall the results are good enough to work with them.
+
 \section{Method}
 Explain how you carried out your study. Aim to be detailed enough for
 others to reproduce your results.
@@ -47,6 +55,28 @@ others to reproduce your results.
 \section{Results}
 Present your results in an objective way. Use tables and charts, but do not
 forget to also include a summary in text form. Do not interpret your results
+
+\subsection{Topics in Rap over Time}
+In this section I visualize the development of German Hip Hop lyrics over the last 30 years. Figure \ref{fig:timeline} depicts the average topic distribution of all songs that were released in the respective year. Since the number of songs released differs each year, the data is normalized to better capture the bigger picture. Note that they years until 2003 contain less than 100 songs each, whereas each year after 2011 has more than 400 songs in the dataset. This imbalance is not due to a poorly select subset of artists, but rather due to the rapid growth in popularity of German Rap in the last 10 years \cite{musikindustrie}. Multiple trends can be seen in this graphic. First of all, an increase of the topic "Competition" with a peak in 2005, followed by a steady decline until 2018. Next, we observe a fast growth of the "Lifestyle" topic since 2010, as well as a moderate growth of "Street" Rap between 2008 and 2018. Throughout most years, "Love \& Life" appears to be the most dominant topic.\\
+This method automatically gives higher influence to artists with more songs in a release year. It also disregards the music preferences of the audience. Figure \ref{fig:w_timeline} is meant to capture the preferred topics by the consumers, by weighting each song with its Spotify popularity score. The score is downloaded for each song from the Spotify API using the \textit{spotipy} package \cite{spotipy}. It measures the current popularity of a song on a scale from 0 to 100. To increase the influence of more popular songs on the graphic, I extended the scale to 1000. An exponential function maps e.g. the score 100 to 1000 or 90 to ca. 500. Compared to the unweighted graphic, we immediately notice a much higher share of the topics "Street" and "Sex \& Party" throughout the entire timeline. The topics "Love \& Life" and "Competition" on the other hand seem to be less popular. "Lifestyle" is mostly unchanged by the weighting.
+
+\begin{figure}[!t]
+\includegraphics[width=\linewidth]{figures/timeline.pdf}
+\vspace*{-8mm}
+\caption{Normalized timeline of the average topic distribution in the lyrics of songs released between 1991 and 2020.}
+\label{fig:timeline}
+\end{figure}
+
+\begin{figure}[!t]
+\includegraphics[width=\linewidth]{figures/w_timeline.pdf}
+\vspace*{-8mm}
+\caption{Normalized timeline of the average topic distribution in the lyrics of songs released between 1991 and 2020. Songs are weighted by their popularity score on Spotify.}
+\label{fig:w_timeline}
+\end{figure}
+
+\subsection{name?}
+\subsection{Sido's Story - Underground to Mainstream}
+
 
 \section{Discussion}
 Analyse your results and discuss the possibilities and limitations of
@@ -133,9 +163,8 @@ surrounding equation.
 \item Do not confuse ``imply'' and ``infer''.
 \item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
 \item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
+\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example'' \cite{genius}.
 \end{itemize}
-An excellent style manual for science writers is \cite{b7}.
 
 \subsection{Authors and Affiliations}
 \textbf{The class file is designed for, but not limited to, six authors.} A 
@@ -208,17 +237,13 @@ quantities and units. For example, write ``Temperature (K)'', not
 
 \section*{References}
 
-Please number citations consecutively within brackets \cite{b1}. The 
-sentence punctuation follows the bracket \cite{b2}.
+Please number citations consecutively within brackets. The 
+sentence punctuation follows the bracket.
 
-
-\begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
-\end{thebibliography}
+{
+\balance{
+  \bibliographystyle{IEEEtran}
+  \bibliography{report.bib}
+  }
+}
 \end{document}
