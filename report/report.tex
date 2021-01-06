@@ -13,7 +13,7 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Conference Paper Title}
+\title{The Evolution of German Rap Lyrics}
 
 
 \author{\IEEEauthorblockN{Luca Schumann}
@@ -52,7 +52,7 @@ Tokenizing German text turned out to be a difficult task, with no really satisfy
 Explain how you carried out your study. Aim to be detailed enough for
 others to reproduce your results.
 
-\section{Results}
+\section{Results} \label{results}
 Present your results in an objective way. Use tables and charts, but do not
 forget to also include a summary in text form. Do not interpret your results
 
@@ -74,13 +74,39 @@ This method automatically gives higher influence to artists with more songs in a
 \label{fig:w_timeline}
 \end{figure}
 
-\subsection{name?}
 \subsection{Sido's Story - Underground to Mainstream}
+In this section I want to lay the focus on one particular Rapper, namely Sido. Although he started his music career in the late 90's, his solo career did not start before the end of 2003, which is why the graph in Figure \ref{fig:sido} starts in 2004. 2004 to 2007 we can see an upwards trend of the topics "Competition" and "Sex \& Party", contributing to almost 80\% of the Rapper's lyrics in 2007. The following years, there is a decline of the two topics, which are being contested by "Love \& Life". 2019 "Love \& Life" makes up around 60\% of the lyrics on its own. "Street" appears to always play a role in his songs, hovering around 15\% throughout the years. "Lifestyle" has the lowest contribution to his music in each year, apart from a 20\% peak in 2012.
 
+\begin{figure}[!t]
+\includegraphics[width=\linewidth]{figures/sido.pdf}
+\vspace*{-8mm}
+\caption{The average percentage of topics in Sido's songs between 2004 and 2019.}
+\label{fig:sido}
+\end{figure}
+
+\subsection{An Artist Overview}
+The last part of this section focusses on the similarity of the lyrics of all analyzed artists. Figure \ref{fig:scatter} visualizes the distance between the artists in 2D space. The average distribution of the artists' songs for each of the five topics were the original vectors in 5D space, reduced to two dimensions using the transformation matrix obtained from Principal Component Analysis (PCA). The dots are colored with the majority label of each artist's lyrics. We can see a large "Love \& Life" cluster on the left side of the graph, that makes up more than half of the entire space. The upper part is dominated by the "Competition" topic, and the right side is shared by "Street" and "Lifestyle". "Sex \& Party" as the majority label does not show up in an individual cluster, it only features two artists that are rather separated.
+
+\begin{figure}[!t]
+\includegraphics[width=\linewidth]{figures/scatter.pdf}
+\vspace*{-8mm}
+\caption{A 2D visualization of the average topic distribution in each artist's lyrics. The dots are colored by the majority label.}
+\label{fig:scatter}
+\end{figure}
 
 \section{Discussion}
 Analyse your results and discuss the possibilities and limitations of
 your technical approach. Compare your study to related work.
+\subsection{Analysis}
+In this subsection I will give an interpretation to the previously shown results of section \ref{results}.
+\subsubsection{Rap over Time}
+The rise of the "Competition" topic in both Figures \ref{fig:timeline} and \ref{fig:w_timeline} strongly correlates with interesting developments in the German Rap-Scene, with the first rivalries that were carried out in public via Battle-Rap songs. The first big "beef" was between Azad and Samy Deluxe in 2001. Azad provoked Samy Deluxe in his song "Gegen den Strom" (against the stream), who then reacted with his disstrack "Rache ist süß" (revenge is sweet), which then again was countered by Azad with "Samy De Bitch". This is just one of countless battles that took place \cite{battles}, with a peak after 2004, where famous Rapper Bushido left his label Aggro Berlin with help from the criminal Abou-Chaker clan \cite{abou-chaker}.\\
+"Lifestyle" is a topic mainly represented by artists of the Trap genre, which started to establish in Germany with artists like Money Boy, RIN, Yung Hurn and Ufo361. The growing popularity of this subgenre is also underlined by the fact, that each of the just named artists can be found in Spotify's "Top Artists of 2020" playlist \cite{spotify_2020}.\\
+Streetrap has existed for a long time in Germany, as can be seen in \ref{fig:w_timeline}, but has been through a revival that started with Haftbefehl in 2009. This revival phase was amplified by many now prominent Street Rappers like Bonez MC, Gzuz and RAF Camora\cite{strassenrap}. Figure \ref{fig:timeline} also shows, that the volume of songs representing this style has only increased since then. From the popularity chart we can take away that the listening preferences of Spotify consumers show a strong bias towards the topics "Street" and "Sex \& Party". Not only recent songs, but also older ones seem to be more popular nowadays compared to contemporaneously produced songs.
+\subsubsection{Sido}
+The radical change in the lyrics depicted in Figure \ref{fig:sido} correlates with Sidos development as an artist. Until the start of his solo career, he was wearing a chromium skull mask and known as a Gangsta-Rapper. His first album as a solo artist was furthermore heavily criticised and indexed \cite{urteil} by the \textit{Federal Review Board for Media Harmful to Minors} \cite{bpjm} because of misogynous and drug-glorifying texts. Today, the Rapper is regularly represented in the Charts with rather "harmless" songs, often featuring Pop artists \cite{sido_charts}.
+\subsubsection{Overview}
+
 
 \section{Conclusion}
 Based on your results and their analysis, what new knowledge do you
