@@ -9,6 +9,8 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{balance}
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -43,9 +45,9 @@ from? What preprocessing did you do, if any?
 First of all, a selection of songs had to be made. To find a balance between relevant artists in the CD era and the streaming era, I decided to combine lists of artists from two sources. I selected all 46 german artists from the Wikipedia list of Rappers that sold more than 100,000 albums in Germany \cite{wiki_albums}. The popularity of musicians today, especially Rappers, is not only defined by the albums sales but also the online streams. Therefore I picked all 13 Rappers appearing in the Spotify playlist "Top German Artists of 2020" \cite{spotify_2020} that were not in the selection yet. To increase the dataset, I chose 18 more objectively popular Rappers, adding up to 77 artists in the end.\\
 The lyrics of the artists' songs were then downloaded using the Genius API \cite{genius} with help of the \textit{lyricsgenius}package \cite{lyricsgenius}. A lot of the songs are duplicates, since remixes, features and live versions are all included in the genius database. There are furthermore many non-songs in the database, such as commentaries. Luckily, most could easily be ignored by discarding songs that contain brackets, as in \textit{Papa ist da (AsadJohn Remix)}. Few others had to be handled differently, but the final dataset is clean of such occurences. In a first run of the model, songs containing english lyrics formed an individual topic. Upon manual inspection, there were a few songs with parts in english, or even completely in english. Therefore, songs that contain all the most common english words in the english topic "the", "you" and "and" were suspected to contain english lyrics and also discarded. The final dataset features almost 7500 songs.
 
-\subsection{Preprocessing}
+\subsection{Preprocessing} \label{preprocessing}
 Preprocessing the song lyrics was an iterative process with many learned lessons. The most basic first step is to remove meta information that is written in brackets from the lyrics, such as \textit{[Hook]}. Next, the songs are tokenized using spacy's German package. Non-alphabetic tokens, stop words and tokens with less than three letters are removed. The rest of the preprocessing is done with Gensim. Bigrams and Trigrams are added and extremes are filtered. Finding the seemingly best values for these tasks was done with the trial and error method.\\
-After excluding english songs from the dataset, the model would still find a topic with mostly english stop words. After removing english stop words during preprocessing, the problem was solved. Another problem was many artist's names appearing in the most salient words of some topics. The reason for this is that some Rappers are notorious for talking and singing about themselves in the third person. Rappers with a lot of songs in the dataset would therefore skew the results, although their own name has nothing to do with the message behind their song. To tackle the problem, each artists name was removed from his or her lyrics. As a final tweak of the preprocessing step, a couple of stop words that were not in spacy's German list were manually removed.\\
+After excluding english songs from the dataset, the model would still find a topic with mostly english stop words. After removing english stop words during preprocessing, the problem was solved. Another problem was many artist's names appearing in the most salient words of some topics. The reason for this is that some Rappers are notorious for talking and singing about themselves in the third person. Rappers with a lot of songs in the dataset would therefore skew the results, although their own name has nothing to do with the message behind their song. To tackle the problem, each artists name was removed from his or her lyrics. Unfortunately this method is not foolproof, as some refer to themselves by nicknames, e.g. \textit{Ufo361} simply calling himself Ufo. As a final tweak of the preprocessing step, a couple of stop words that were not in spacy's German list were manually removed.\\
 Tokenizing German text turned out to be a difficult task, with no really satisfying solution. In German texts, all nouns are capitalized, therefore also in spacy's word list. If a word at the beginning of a sentence is capitalized, it is not possible for spacy to tell wether it's a noun or not. Feeding spacy all words in lowercase would also not solve the problem, since it would not recognize the nouns anymore. Additionally, some words have a different meaning depending on wether they are a noun (capitalized) or not. E.g. "Weg" means path but "weg" means away in German. This appears to be an unsolved problem as of today, as can be read on spacy's Github forum \cite{spacy_issues}. Lemmatization does also not work as well as for english text, but overall the results are good enough to work with them.
 
 \section{Method}
@@ -55,6 +57,55 @@ others to reproduce your results.
 \section{Results} \label{results}
 Present your results in an objective way. Use tables and charts, but do not
 forget to also include a summary in text form. Do not interpret your results
+
+\subsection{The Topics}
+The final iteration of the model found five topics that I named "Street", "Sex \& Party", "Love \& Life", "Competition" and "Lifestyle". Table \ref{tab:topics} shows the eleven most salient terms for each topic, translated to English. It strucks right away that many English terms are used in the lyrics, especially in the "Lifestyle" topic, were seven words are not translated. Interestingly, there are none in "Street" or "Love \& Life". Some words such as \textit{see}, \textit{man} or \textit{yeah} make it in the top terms of multiple categories. \textit{Come} for example even appears twice very high up in the "Sex \& Party" list. In the original German list the verb is once capitalized, which is the reason for it appearing twice. As mentioned in Section \ref{preprocessing}, spacy does not recognize capitalized non-nouns at the beginning of sentences correctly.
+
+\begin{table}[htbp]
+\caption{11 Most Salient Terms for each Topic, Translated}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Street}&\textbf{Sex \& Party}&\textbf{Love \& Life}&\textbf{Competition}&\textbf{Lifestyle} \\
+\cline{1-5}
+\hline
+brother & baby$^{\mathrm{O}}$ & life & Rapper$^{\mathrm{O}}$ & bro$^{\mathrm{S}}$ \\
+\hline
+money & come & (to) love & Rap$^{\mathrm{O}}$ & bitch$^{\mathrm{O}}$ \\
+\hline
+street & know & world & see & money$^{\mathrm{O}}$ \\
+\hline
+mom & come & see & come & money \\
+\hline
+head & yeah$^{\mathrm{O}}$ & know & boy & bitches$^{\mathrm{O}}$ \\
+\hline
+boys & say & stay & yeah$^{\mathrm{O}}$ & yeah$^{\mathrm{O}}$ \\
+\hline
+out & please & stand & bitch$^{\mathrm{O}}$ & cash$^{\mathrm{O}}$ \\
+\hline
+life & party$^{\mathrm{O}}$ & man & fuck & gang$^{\mathrm{O}}$ \\
+\hline
+block & drag$^{\mathrm{M}}$ & think & man & bro$^{\mathrm{S}}$ \\
+\hline
+away & night & just$^{\mathrm{M}}$ & king$^{\mathrm{O}}$ & fuck \\
+\hline
+run & club$^{\mathrm{O}}$ & heart & people & Gucci$^{\mathrm{O}}$ \\
+\hline
+\hline
+\multicolumn{5}{l}{$^{\mathrm{O}}$Original, not translated $^{\mathrm{M}}$Multiple meanings possible $^{\mathrm{S}}$Slang}
+\end{tabular}
+\label{tab:topics}
+\end{center}
+\end{table}
+
+Figure \ref{fig:topic_dist} shows the intertopic distance map, visualized by the Python implementation of the LDAvis tool \cite{sievert-shirley-2014-ldavis}. The five topics are drawn as circles in 2D space, by first computing the intertopic distances and then multiplying those with the transformation matrix obtained from Principal Component Analysis (PCA). Each topic's overall frequency is depicted by the size of the respective blob. The topics "Lifestyle" and "Sex \& Party" stand out as the smallest, with 11.8\% and 10\%, respectively. They also have a huge gap between them and the other topics. The other three topics are rather close in comparison, but still with a noticeable distance between each other. The next largest topic is "Street" with 15.4\%, followed by "Competition" with 29.1\% and finally "Love \& Life", which is assigned to 33.7\% of all tokens.
+
+\begin{figure}[!t]
+\includegraphics[width=\linewidth]{figures/topic_dist.png}
+\vspace*{-8mm}
+\caption{The intertopic distance map for all five topics. The distance is computed as the Jensen-Shannon divergence and projected to 2D space. 1: Love \& Life, 2: Competition, 3: Street, 4: Lifestyle, 5: Sex \& Party.}
+\label{fig:topic_dist}
+\end{figure}
 
 \subsection{Topics in Rap over Time}
 In this section I visualize the development of German Hip Hop lyrics over the last 30 years. Figure \ref{fig:timeline} depicts the average topic distribution of all songs that were released in the respective year. Since the number of songs released differs each year, the data is normalized to better capture the bigger picture. Note that they years until 2003 contain less than 100 songs each, whereas each year after 2011 has more than 400 songs in the dataset. This imbalance is not due to a poorly select subset of artists, but rather due to the rapid growth in popularity of German Rap in the last 10 years \cite{musikindustrie}. Multiple trends can be seen in this graphic. First of all, an increase of the topic "Competition" with a peak in 2005, followed by a steady decline until 2018. Next, we observe a fast growth of the "Lifestyle" topic since 2010, as well as a moderate growth of "Street" Rap between 2008 and 2018. Throughout most years, "Love \& Life" appears to be the most dominant topic.\\
@@ -75,7 +126,7 @@ This method automatically gives higher influence to artists with more songs in a
 \end{figure}
 
 \subsection{Sido's Story - Underground to Mainstream}
-In this section I want to lay the focus on one particular Rapper, namely Sido. Although he started his music career in the late 90's, his solo career did not start before the end of 2003, which is why the graph in Figure \ref{fig:sido} starts in 2004. 2004 to 2007 we can see an upwards trend of the topics "Competition" and "Sex \& Party", contributing to almost 80\% of the Rapper's lyrics in 2007. The following years, there is a decline of the two topics, which are being contested by "Love \& Life". 2019 "Love \& Life" makes up around 60\% of the lyrics on its own. "Street" appears to always play a role in his songs, hovering around 15\% throughout the years. "Lifestyle" has the lowest contribution to his music in each year, apart from a 20\% peak in 2012.
+In this section I want to lay the focus on one particular Rapper, namely Sido. Although he started his music career in the late 90s, his solo career did not start before the end of 2003, which is why the graph in Figure \ref{fig:sido} starts in 2004. 2004 to 2007 we can see an upwards trend of the topics "Competition" and "Sex \& Party", contributing to almost 80\% of the Rapper's lyrics in 2007. The following years, there is a decline of the two topics, which are being contested by "Love \& Life". 2019 "Love \& Life" makes up around 60\% of the lyrics on its own. "Street" appears to always play a role in his songs, hovering around 15\% throughout the years. "Lifestyle" has the lowest contribution to his music in each year, apart from a 20\% peak in 2012.
 
 \begin{figure}[!t]
 \includegraphics[width=\linewidth]{figures/sido.pdf}
@@ -85,7 +136,7 @@ In this section I want to lay the focus on one particular Rapper, namely Sido. A
 \end{figure}
 
 \subsection{An Artist Overview}
-The last part of this section focusses on the similarity of the lyrics of all analyzed artists. Figure \ref{fig:scatter} visualizes the distance between the artists in 2D space. The average distribution of the artists' songs for each of the five topics were the original vectors in 5D space, reduced to two dimensions using the transformation matrix obtained from Principal Component Analysis (PCA). The dots are colored with the majority label of each artist's lyrics. We can see a large "Love \& Life" cluster on the left side of the graph, that makes up more than half of the entire space. The upper part is dominated by the "Competition" topic, and the right side is shared by "Street" and "Lifestyle". "Sex \& Party" as the majority label does not show up in an individual cluster, it only features two artists that are rather separated.
+The last part of this section focusses on the similarity of the lyrics of all analyzed artists. Figure \ref{fig:scatter} visualizes the distance between the artists in 2D space. The average distribution of the artists' songs for each of the five topics were the original vectors in 5D space, reduced to two dimensions using PCA. The dots are colored with the majority label of each artist's lyrics. We can see a large "Love \& Life" cluster on the left side of the graph, that makes up more than half of the entire space. The upper part is dominated by the "Competition" topic, and the right side is shared by "Street" and "Lifestyle". "Sex \& Party" as the majority label does not show up in an individual cluster, it only features two artists that are rather separated.
 
 \begin{figure}[!t]
 \includegraphics[width=\linewidth]{figures/scatter.pdf}
@@ -99,172 +150,26 @@ Analyse your results and discuss the possibilities and limitations of
 your technical approach. Compare your study to related work.
 \subsection{Analysis}
 In this subsection I will give an interpretation to the previously shown results of section \ref{results}.
-\subsubsection{Rap over Time}
+\subsubsection{The Topics}
+The choice for the correct number of topics is of most critical importance for a good topic model. I finally sticked to five topics, as it gave the best balance between expressiveness and quality of results. Of course a larger topic number improves the ability of the model to correctly assign a topic to a song. On the other hand, clogging the graphs with 20 different topics makes them harder to interpret, so instead I decided to keep the topic number small and the topics broader. The sizes of each topic vary to a reasonable extent, so that no topic is underrepresented. The intertopic distances are also large enough, such that there is not too much overlap between them, but a relatively clear distinction. Previous models have shown far worse results, with extremely niche/broad topics or heavily overlapping topics.\\
+Table \ref{tab:topics} is meant to help understand the content of the topics better. Some of these words seem not to fit the topic on the first read, because they may have a specific meaning in Rap culture. E.g. when \textit{king} is mentioned in Rap lyrics, the meaning is supposedly more often \textit{king of Rap} than that an actual Monarch is meant. The difference in the number of English and slang words between the topics can potentially mean that language has an influence on the topic choice. Two sentences with the same meaning but a different word choice could be assigned to different topics. The word \textit{yeah} could have been added to the stop word list, but it is hard to decide wether it really belongs there.
+
+\subsubsection{Rap over Time} \label{discussion_timeline}
 The rise of the "Competition" topic in both Figures \ref{fig:timeline} and \ref{fig:w_timeline} strongly correlates with interesting developments in the German Rap-Scene, with the first rivalries that were carried out in public via Battle-Rap songs. The first big "beef" was between Azad and Samy Deluxe in 2001. Azad provoked Samy Deluxe in his song "Gegen den Strom" (against the stream), who then reacted with his disstrack "Rache ist süß" (revenge is sweet), which then again was countered by Azad with "Samy De Bitch". This is just one of countless battles that took place \cite{battles}, with a peak after 2004, where famous Rapper Bushido left his label Aggro Berlin with help from the criminal Abou-Chaker clan \cite{abou-chaker}.\\
 "Lifestyle" is a topic mainly represented by artists of the Trap genre, which started to establish in Germany with artists like Money Boy, RIN, Yung Hurn and Ufo361. The growing popularity of this subgenre is also underlined by the fact, that each of the just named artists can be found in Spotify's "Top Artists of 2020" playlist \cite{spotify_2020}.\\
 Streetrap has existed for a long time in Germany, as can be seen in \ref{fig:w_timeline}, but has been through a revival that started with Haftbefehl in 2009. This revival phase was amplified by many now prominent Street Rappers like Bonez MC, Gzuz and RAF Camora\cite{strassenrap}. Figure \ref{fig:timeline} also shows, that the volume of songs representing this style has only increased since then. From the popularity chart we can take away that the listening preferences of Spotify consumers show a strong bias towards the topics "Street" and "Sex \& Party". Not only recent songs, but also older ones seem to be more popular nowadays compared to contemporaneously produced songs.
 \subsubsection{Sido}
 The radical change in the lyrics depicted in Figure \ref{fig:sido} correlates with Sidos development as an artist. Until the start of his solo career, he was wearing a chromium skull mask and known as a Gangsta-Rapper. His first album as a solo artist was furthermore heavily criticised and indexed \cite{urteil} by the \textit{Federal Review Board for Media Harmful to Minors} \cite{bpjm} because of misogynous and drug-glorifying texts. Today, the Rapper is regularly represented in the Charts with rather "harmless" songs, often featuring Pop artists \cite{sido_charts}.
 \subsubsection{Overview}
-
+The largest part of Rappers in Figure \ref{fig:scatter} being labeled as mainly "Love \& Life" is no surprise. First of all it is the most prevalent topic in the model. Secondly, the topic contains many common words, such as (translated) to know, to see or to say. It is noticeable, that almost all of the artists that were active in the 90s in the set are inside the green cluster, most even very far on the left. Some examples for that are \textit{Fettes Brot}, \textit{Tic Tac Toe}, \textit{R\"odelheim Hartreim Projekt} and \textit{Die Fantastischen Vier}.\\
+The top side of the graph features Rappers like \textit{Fler}, \textit{Bushido} and \textit{Kollegah} that are often involved in Rap battles \cite{battles}. Most of them also have a career going for 15 years or longer, which means they were active during the "Competition" peak found in Section \ref{discussion_timeline}. This red cluster is a strong indication that the "Competition" topic is correctly extracted.\\
+The only representatives of "Sex \& Party" as the majority label here are \textit{Yung Hurn} and \textit{Die Atzen}. Both sing almost exclusively about drugs in \textit{Yung Hurn's} case or about party in \textit{Die Atzen's} case, which also makes their labels reasonable.\\
+The artists \textit{Gzuz} and \textit{Bonez MC} are very close to each other as well as to their group project \textit{187 Strassenbande}, despite all three having a different majority label. This can be interpreted as an even distribution of three topics in the three artists' songs.\\
+Finally, the right side of the graph features many active street Rappers \cite{strassenrap} such as \textit{Capital Bra}, \textit{Mero} and \textit{Ufo361}. Purple colored dots are also spread around in the same area, which points towards a strong correlation of the topics "Street" and "Lifestyle".
 
 \section{Conclusion}
 Based on your results and their analysis, what new knowledge do you
 take away from your project?
-
-\section{TODOBELOW}
-
-\subsection{Abbreviations and Acronyms}\label{AA}
-
-\subsection{Units}
-\begin{itemize}
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
-\item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
-\end{itemize}
-
-\subsection{Equations}
-Number equations consecutively. To make your 
-equations more compact, you may use the solidus (~/~), the exp function, or 
-appropriate exponents. Italicize Roman symbols for quantities and variables, 
-but not Greek symbols. Use a long dash rather than a hyphen for a minus 
-sign. Punctuate equations with commas or periods when they are part of a 
-sentence, as in:
-\begin{equation}
-a+b=\gamma\label{eq}
-\end{equation}
-
-Be sure that the 
-symbols in your equation have been defined before or immediately following 
-the equation. Use ``\eqref{eq}'', not ``Eq.~\eqref{eq}'' or ``equation \eqref{eq}'', except at 
-the beginning of a sentence: ``Equation \eqref{eq} is . . .''
-
-\subsection{\LaTeX-Specific Advice}
-
-Please use ``soft'' (e.g., \verb|\eqref{Eq}|) cross references instead
-of ``hard'' references (e.g., \verb|(1)|). That will make it possible
-to combine sections, add equations, or change the order of figures or
-citations without having to go through the file line by line.
-
-Please don't use the \verb|{eqnarray}| equation environment. Use
-\verb|{align}| or \verb|{IEEEeqnarray}| instead. The \verb|{eqnarray}|
-environment leaves unsightly spaces around relation symbols.
-
-Please note that the \verb|{subequations}| environment in {\LaTeX}
-will increment the main equation counter even when there are no
-equation numbers displayed. If you forget that, you might write an
-article in which the equation numbers skip from (17) to (20), causing
-the copy editors to wonder if you've discovered a new method of
-counting.
-
-{\BibTeX} does not work by magic. It doesn't get the bibliographic
-data from thin air but from .bib files. If you use {\BibTeX} to produce a
-bibliography you must send the .bib files. 
-
-{\LaTeX} can't read your mind. If you assign the same label to a
-subsubsection and a table, you might find that Table I has been cross
-referenced as Table IV-B3. 
-
-{\LaTeX} does not have precognitive abilities. If you put a
-\verb|\label| command before the command that updates the counter it's
-supposed to be using, the label will pick up the last counter to be
-cross referenced instead. In particular, a \verb|\label| command
-should not go before the caption of a figure or a table.
-
-Do not use \verb|\nonumber| inside the \verb|{array}| environment. It
-will not stop equation numbers inside \verb|{array}| (there won't be
-any anyway) and it might stop a wanted equation number in the
-surrounding equation.
-
-\subsection{Some Common Mistakes}\label{SCM}
-\begin{itemize}
-\item The word ``data'' is plural, not singular.
-\item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
-\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
-\item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
-\item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
-\item Do not confuse ``imply'' and ``infer''.
-\item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example'' \cite{genius}.
-\end{itemize}
-
-\subsection{Authors and Affiliations}
-\textbf{The class file is designed for, but not limited to, six authors.} A 
-minimum of one author is required for all conference articles. Author names 
-should be listed starting from left to right and then moving down to the 
-next line. This is the author sequence that will be used in future citations 
-and by indexing services. Names should not be listed in columns nor group by 
-affiliation. Please keep your affiliations as succinct as possible (for 
-example, do not differentiate among departments of the same organization).
-
-\subsection{Identify the Headings}
-Headings, or heads, are organizational devices that guide the reader through 
-your paper. There are two types: component heads and text heads.
-
-Component heads identify the different components of your paper and are not 
-topically subordinate to each other. Examples include Acknowledgments and 
-References and, for these, the correct style to use is ``Heading 5''. Use 
-``figure caption'' for your Figure captions, and ``table head'' for your 
-table title. Run-in heads, such as ``Abstract'', will require you to apply a 
-style (in this case, italic) in addition to the style provided by the drop 
-down menu to differentiate the head from the text.
-
-Text heads organize the topics on a relational, hierarchical basis. For 
-example, the paper title is the primary text head because all subsequent 
-material relates and elaborates on this one topic. If there are two or more 
-sub-topics, the next level head (uppercase Roman numerals) should be used 
-and, conversely, if there are not at least two sub-topics, then no subheads 
-should be introduced.
-
-\subsection{Figures and Tables}
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
-bottom of columns. Avoid placing them in the middle of columns. Large 
-figures and tables may span across both columns. Figure captions should be 
-below the figures; table heads should appear above the tables. Insert 
-figures and tables after they are cited in the text. Use the abbreviation 
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
-
-\begin{table}[htbp]
-\caption{Table Type Styles}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
-\cline{2-4} 
-\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
-\hline
-copy& More table copy$^{\mathrm{a}}$& &  \\
-\hline
-\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
-\end{tabular}
-\label{tab1}
-\end{center}
-\end{table}
-
-\begin{figure}[htbp]
-\centerline{\includegraphics{fig1.png}}
-\caption{Example of a figure caption.}
-\label{fig}
-\end{figure}
-
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
-rather than symbols or abbreviations when writing Figure axis labels to 
-avoid confusing the reader. As an example, write the quantity 
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
-units in the label, present them within parentheses. Do not label axes only 
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
-quantities and units. For example, write ``Temperature (K)'', not 
-``Temperature/K''.
-
-\section*{References}
-
-Please number citations consecutively within brackets. The 
-sentence punctuation follows the bracket.
 
 {
 \balance{
